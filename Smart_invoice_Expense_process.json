@@ -1,0 +1,1436 @@
+{
+  "name": "Smart_invoice_Expense_process",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Smart Invoice & Expense Processor ",
+        "formDescription": "Submit Your Invoice ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "input",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        16,
+        -32
+      ],
+      "id": "23621a77-fcea-4845-a2c8-cfd8a8c8de82",
+      "name": "On form submission",
+      "webhookId": "e10fc5a5-a0f9-4670-bb35-5746f0fafe0c"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "35e77974-0b31-458f-bff2-3029bf69f160",
+              "leftValue": "={{ $json.input[0].mimetype }}",
+              "rightValue": "=pdf",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "0fa78b1d-0626-494d-af2e-1a1bd9e09f8f",
+              "leftValue": "={{ $json.input[0].mimetype }}",
+              "rightValue": "image/",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        -112
+      ],
+      "id": "6aa44c89-0a9d-4533-939d-c395c3a853cc",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "errorMessage": "there is no proper file"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        256,
+        192
+      ],
+      "id": "0873882f-0247-49e4-b6f5-a519c6da81bf",
+      "name": "Stop and Error"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "input",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -192
+      ],
+      "id": "b0356e3a-2e1b-4e8b-85f3-d12ebdf85752",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "text": "=You are an intelligent data extraction assistant. \nExtract the following fields accurately from the provided document or text. \nIf any field is missing, return it as null. \n\nFields to extract:\n- Invoice Number\n- Order Number\n- Invoice Date\n- Due Date\n- Invoice Status\n- Total Amount Due\n- Seller Company Name\n- Seller Address\n- Seller Email\n\nReturn the result strictly in JSON format like this:\n{\n  \"invoice_number\": \"\",\n  \"order_number\": \"\",\n  \"invoice_date\": \"\",\n  \"due_date\": \"\",\n  \"invoice_status\": \"\",\n  \"total_amount_due\": \"\",\n  \"seller_company_name\": \"\",\n  \"seller_address\": \"\",\n  \"seller_email\": \"\"\n}\nhere is your text\n {{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Invoice Number",
+              "description": "enter the invoice number"
+            },
+            {
+              "name": "Order Number",
+              "type": "number",
+              "description": "enter the number"
+            },
+            {
+              "name": "Invoice Date",
+              "type": "date",
+              "description": "enter the date"
+            },
+            {
+              "name": "Due Date",
+              "type": "date",
+              "description": "enter the date"
+            },
+            {
+              "name": "Invoice Status",
+              "description": "enter the status"
+            },
+            {
+              "name": "Total Amount Due",
+              "type": "number",
+              "description": "enter the number"
+            },
+            {
+              "name": "Seller Company Name",
+              "description": "enter the name"
+            },
+            {
+              "name": " Seller Address",
+              "description": "enter the address"
+            },
+            {
+              "name": " Seller Email",
+              "description": "enter the emailid"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        -192
+      ],
+      "id": "0c58cdd5-75da-440f-9b40-db5326e60eda",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        672,
+        32
+      ],
+      "id": "e4f89607-e0d7-4ef4-a2a5-2302bfca16d4",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "iNhW6RahtsAXqW8b",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5a309ef4-476f-40cd-898e-06af99523054",
+              "leftValue": "={{ $json['Order Number'][0] }}",
+              "rightValue": "={{ $json['order number1'][0] }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1424,
+        48
+      ],
+      "id": "c47e8b87-c34f-48cb-b264-b95b31daa8c1",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "fromEmail": "pritam14sadhu@gmail.com",
+        "toEmail": "={{ $json['Seller Email'] }}",
+        "subject": "approved invoice ",
+        "emailFormat": "text",
+        "text": "The invoice INV-3337 has been reviewed and verified. Please note that all details and amounts are correct.\nKindly consider this mail as formal approval for processing the payment.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        2128,
+        32
+      ],
+      "id": "4bb6947e-a01e-4a6a-b8fa-e5c22355816e",
+      "name": "Send email",
+      "webhookId": "1f58a0ea-f761-40db-9879-5e0cfca2ea09",
+      "credentials": {
+        "smtp": {
+          "id": "beM2yM7XSQkGGqS1",
+          "name": "SMTP account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4",
+          "mode": "list",
+          "cachedResultName": "testing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "invoice",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Invoice Number": "={{ $json.output['Invoice Number'] }}",
+            "Order Number": "={{ $json.output['Order Number'] }}",
+            "Invoice Date": "={{ $json.output['Invoice Date'] }}",
+            " Due Date": "={{ $json.output['Due Date'] }}",
+            "Total Amount Due": "={{ $json.output['Total Amount Due'] }}",
+            "Seller Company Name": "={{ $json.output['Seller Company Name'] }}",
+            "Seller Address": "={{ $json.output[' Seller Address'] }}",
+            "Seller Email": "={{ $json.output[' Seller Email'] }}"
+          },
+          "matchingColumns": [
+            "output"
+          ],
+          "schema": [
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Order Number",
+              "displayName": "Order Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Invoice Date",
+              "displayName": "Invoice Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": " Due Date",
+              "displayName": " Due Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": " Invoice Status",
+              "displayName": " Invoice Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Total Amount Due",
+              "displayName": "Total Amount Due",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Seller Company Name",
+              "displayName": "Seller Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Seller Address",
+              "displayName": "Seller Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Seller Email",
+              "displayName": "Seller Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1088,
+        -416
+      ],
+      "id": "f7f55bcc-7afb-469b-9cc7-6f2e7226bf8d",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6lUsp6QyxNZYBraQ",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4",
+          "mode": "list",
+          "cachedResultName": "testing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "invoice",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Order Number",
+              "lookupValue": "={{ $json['Purchase Order Number'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1808,
+        32
+      ],
+      "id": "d288c443-eb9e-43d9-b3d2-e43f536712f1",
+      "name": "Get row(s) in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6lUsp6QyxNZYBraQ",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Purchase Order",
+        "formDescription": "Submit Your Purchase Order Details ",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Submit",
+              "fieldType": "file",
+              "multipleFiles": false
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -1760,
+        560
+      ],
+      "id": "f19fd7ba-9920-4290-aa5f-4cc63e7f040d",
+      "name": "On form submission1",
+      "webhookId": "4755fe42-bfda-4655-b1e1-a39592c06d23"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "13901804-c919-498e-920f-e444e5d855d0",
+              "leftValue": "={{ $json.Submit.filename }}",
+              "rightValue": "pdf",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1344,
+        560
+      ],
+      "id": "d6be5580-2b5a-4c0c-9de1-eb64dc00c1cb",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Submit",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        544
+      ],
+      "id": "eabac903-3234-4d19-bc37-54b79631893f",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "text": "=You are an intelligent document parser. Your job is to carefully extract structured information from a Purchase Order text.\n\nExtract all the following fields and return the result strictly in valid JSON format.\n\nThe fields to extract are:\n\n- Quantity\n- Description\n\n- Total Amount\n- Purchase Order Number\n- Purchase Date\n\n\nIf any field is missing in the input, return it as an empty string (\"\").\n\nExample Output Format:\n{\n  \n  \"Quantity\": \"\",\n  \"Description\": \"\",\n  \n\n  \"Total Amount\": \"\",\n  \"Purchase Order Number\": \"\",\n  \"Purchase Date\": \"\",\n  \n}\n\nNow extract the information from the following text:\n{{ $json.text }}\n\n\n",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Quantity",
+              "type": "number",
+              "description": "enter the number"
+            },
+            {
+              "name": "Description",
+              "description": "enter the number"
+            },
+            {
+              "name": "Total Amount",
+              "description": "enter the ammount"
+            },
+            {
+              "name": "Purchase Order Number",
+              "description": "enter the name"
+            },
+            {
+              "name": "Purchase Date ",
+              "description": "enter the address"
+            },
+            {
+              "name": "Seller Email",
+              "description": "enter your email"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -672,
+        544
+      ],
+      "id": "4cf2bb55-e41a-43bc-84f2-553f5df1067b",
+      "name": "Information Extractor1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        848
+      ],
+      "id": "ad82a960-4b2d-42f2-8559-448cf5bdf3c3",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "iNhW6RahtsAXqW8b",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4",
+          "mode": "list",
+          "cachedResultName": "testing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1429253725,
+          "mode": "list",
+          "cachedResultName": "POs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit#gid=1429253725"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "quantity": "={{ $json.output.Quantity }}",
+            "descrition": "={{ $json.output.Description }}",
+            "total amount": "={{ $json.output['Total Amount'] }}",
+            "Purchase Order Number": "={{ $json.output['Purchase Order Number'] }}",
+            "purchase date": "={{ $json.output['Purchase Date '] }}",
+            "seller email": "={{ $json.output['Seller Email'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "quantity",
+              "displayName": "quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "descrition",
+              "displayName": "descrition",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "total amount",
+              "displayName": "total amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Purchase Order Number",
+              "displayName": "Purchase Order Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "purchase date",
+              "displayName": "purchase date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "seller email",
+              "displayName": "seller email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -224,
+        544
+      ],
+      "id": "2e7dedb4-242d-4a77-9b89-836108a62b83",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6lUsp6QyxNZYBraQ",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "pritam14sadhu@gmail.com",
+        "toEmail": "={{ $json['seller email'] }}",
+        "subject": "requesting for uploading invoice ",
+        "emailFormat": "both",
+        "text": "please upload your invoice in the given link https://n8n.srv1070244.hstgr.cloud/form-test/e10fc5a5-a0f9-4670-bb35-5746f0fafe0c",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        32,
+        544
+      ],
+      "id": "ae348fca-3ee9-4a50-821d-fed0fca7aa2a",
+      "name": "Send email1",
+      "webhookId": "f89b8a6d-7334-4a84-a1ff-18cede5f5cae",
+      "credentials": {
+        "smtp": {
+          "id": "beM2yM7XSQkGGqS1",
+          "name": "SMTP account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4",
+          "mode": "list",
+          "cachedResultName": "testing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1429253725,
+          "mode": "list",
+          "cachedResultName": "POs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit#gid=1429253725"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Purchase Order Number",
+              "lookupValue": "={{ $json.output['Order Number'] }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1088,
+        48
+      ],
+      "id": "3ef055c7-3219-47d1-b3fc-46db8b349644",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6lUsp6QyxNZYBraQ",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "this work flow takes input for purchase order after that it makes sure its a pdf then extract binary data and convert it to json after that from information extractor its extract all attributes with its value and pass it to POs sheet to store and after that it send mail to the seller mail is which is mention in POs doc",
+        "height": 240
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1840,
+        256
+      ],
+      "id": "7ef95f21-d957-4a2a-b95c-16cd31866a32",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "in this part of the entire workflow will be trigger when the seller upload the invoice for that purchase order document should be in pdf format if it is not then workflow will stop. then it will extract all binary data and convert in json so that information extractor can read and then it will append the attribute value to the invoice sheet  ",
+        "height": 192,
+        "width": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -352
+      ],
+      "id": "34c48239-102e-449d-a2c0-3041f0a67296",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "now it will fetch that row from POs sheet if order no in invoice is matched with any value of purchase order no attribute then it will fetch that row and execute the if true condition of if node and after that it will fetch that email id which is associate with order no of invoice sheet and send the approval mail\n",
+        "width": 352
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1504,
+        -224
+      ],
+      "id": "c2d1cd1a-2ce9-445f-89e7-6a8836c0ca6f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "AUTOMATION\n\nSMART INVOICE & EXPENSE PROCESS",
+        "height": 96,
+        "width": 288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1248,
+        -304
+      ],
+      "id": "1c34407c-0508-4233-8b38-3fa11fdf42fa",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "includeSpamTrash": true
+        },
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        16,
+        1424
+      ],
+      "id": "77af4ad6-14ad-4033-8950-e0cc03bebe3f",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "q6tsTdyLlOw0E7cN",
+          "name": "pritam14"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "attachment_0",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        368,
+        1424
+      ],
+      "id": "b9df33b8-3ed1-466e-a03f-48fb6ad078d8",
+      "name": "Extract from File2"
+    },
+    {
+      "parameters": {
+        "text": "=You are an intelligent data extraction assistant. \nExtract the following fields accurately from the provided document or text. \nIf any field is missing, return it as null. \nFields to extract:\n- Invoice Number\n- Order Number\n- Invoice Date\n- Due Date\n- Invoice Status\n- Total Amount Due\n- Seller Company Name\n- Seller Address\n- Seller Email\n- quantity \n- description\n\nReturn the result strictly in JSON format like this:\n{\n  \"invoice_number\": \"\",\n  \"order_number\": \"\",\n  \"invoice_date\": \"\",\n  \"due_date\": \"\",\n  \"invoice_status\": \"\",\n  \"total_amount_due\": \"\",\n  \"seller_company_name\": \"\",\n  \"seller_address\": \"\",\n  \"seller_email\": \"\",\n  \"quantity\":\"\",\n  \"description\":\"\"\n}\nhere is your text\n{{ $json.text }}\n\n ",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Invoice Number",
+              "description": "enter the number",
+              "required": true
+            },
+            {
+              "name": "Purchase Order Number",
+              "type": "number",
+              "description": "enter the number"
+            },
+            {
+              "name": "Total Amount",
+              "type": "number",
+              "description": "enter the amount"
+            },
+            {
+              "name": "Seller company name",
+              "description": "enter the name"
+            },
+            {
+              "name": "seller address",
+              "description": "enter the address"
+            },
+            {
+              "name": "Seller email address",
+              "description": "enter the email"
+            },
+            {
+              "name": "quantity",
+              "type": "number",
+              "description": "enter the number"
+            },
+            {
+              "name": "description",
+              "description": "enter"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        1424
+      ],
+      "id": "f90c26b3-2832-4912-bb96-8229a072014e",
+      "name": "Information Extractor2"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        576,
+        1648
+      ],
+      "id": "e949f80e-ebe2-4e5b-9e24-a94b22e19fe0",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "iNhW6RahtsAXqW8b",
+          "name": "Google Gemini(PaLM) Api account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cbb7e6b3-6b0a-4749-8505-a12e0eab5a9b",
+              "leftValue": "={{ $json.output['Invoice Number'] }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        1424
+      ],
+      "id": "193ebae5-193f-412f-8cf3-95bb1fe107a7",
+      "name": "If3"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4",
+          "mode": "list",
+          "cachedResultName": "testing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "invoice",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Invoice Number": "={{ $json.output['Invoice Number'] }}",
+            "Order Number": "={{ $json.output['Purchase Order Number'] }}",
+            "Total Amount Due": "={{ $json.output['Total Amount'] }}",
+            "Seller Company Name": "={{ $json.output['Seller company name'] }}",
+            "Seller Address": "={{ $json.output['seller address'] }}",
+            "Seller Email": "={{ $json.output['Seller email address'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Invoice Number",
+              "displayName": "Invoice Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Order Number",
+              "displayName": "Order Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Date",
+              "displayName": "Invoice Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " Due Date",
+              "displayName": " Due Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " Invoice Status",
+              "displayName": " Invoice Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Amount Due",
+              "displayName": "Total Amount Due",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Seller Company Name",
+              "displayName": "Seller Company Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Seller Address",
+              "displayName": "Seller Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Seller Email",
+              "displayName": "Seller Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1136,
+        1520
+      ],
+      "id": "93adf3bf-a720-4984-85ca-aa298ba83070",
+      "name": "Append row in sheet2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6lUsp6QyxNZYBraQ",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4",
+          "mode": "list",
+          "cachedResultName": "testing",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1429253725,
+          "mode": "list",
+          "cachedResultName": "POs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J8lSK04Jfck4rp-7Yx1ghQmYePhPMVqPA9cJOObTXH4/edit#gid=1429253725"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "total amount": "={{ $json.output['Total Amount'] }}",
+            "Purchase Order Number": "={{ $json.output['Purchase Order Number'] }}",
+            "seller email": "={{ $json.output['Seller email address'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "quantity",
+              "displayName": "quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "descrition",
+              "displayName": "descrition",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total amount",
+              "displayName": "total amount",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Purchase Order Number",
+              "displayName": "Purchase Order Number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "purchase date",
+              "displayName": "purchase date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "seller email",
+              "displayName": "seller email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1136,
+        1328
+      ],
+      "id": "2b7bc124-19ac-4b5c-9f8d-0683173c10a1",
+      "name": "Append row in sheet3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "6lUsp6QyxNZYBraQ",
+          "name": "Google Sheets account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "in this workflow as a trigger i use on mail received trigger when ever we get the mail we will extract the attachment and extract all data and convert binary to json form after that extract all values of predefined attributes using information extractor then using if node that will define where the data should be append on behalf of the invoice number if it is empty then its go to POs else invoice ",
+        "height": 192,
+        "width": 352
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        48,
+        1136
+      ],
+      "id": "2eb8776b-e0f4-4cb9-9304-7003308fe722",
+      "name": "Sticky Note4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s) in sheet2": {
+      "main": [
+        [
+          {
+            "node": "Send email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission1": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send email1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract from File2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File2": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor2": {
+      "main": [
+        [
+          {
+            "node": "If3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If3": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append row in sheet2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "30605e6d-09df-4444-849d-4b4df8e65c6c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c2eb7cceb20c027e621e6af07a074e76bdc7dfd45cf01fa998cb0fa60d849a70"
+  },
+  "id": "DnChYvh9ylTyve37",
+  "tags": []
+}
